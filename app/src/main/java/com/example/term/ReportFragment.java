@@ -1,6 +1,8 @@
 package com.example.term;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -29,6 +31,15 @@ public class ReportFragment extends Fragment {
 
     String id,msg1,sub1;
 
+    SharedPreferences sharedPreferences;
+
+    public static final String fileName="data";
+    public static final String userId="userId";
+    public static final String name="name";
+    public static final String parent="parent";
+    public static final String phone="phone";
+    public static final String photoUrl="photoUrl";
+
     public ReportFragment() {
         // Required empty public constructor
     }
@@ -44,8 +55,8 @@ public class ReportFragment extends Fragment {
         msg=view.findViewById(R.id.msg);
         progressBar=view.findViewById(R.id.progress1);
         report=view.findViewById(R.id.reportbutton);
-        Bundle bundle = getArguments();
-        id = bundle.getString("id", "Default");
+        sharedPreferences=this.getActivity().getSharedPreferences(fileName, Context.MODE_PRIVATE);
+        id = sharedPreferences.getString(userId,"");
         report.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

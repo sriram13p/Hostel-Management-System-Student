@@ -2,7 +2,9 @@ package com.example.term;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -26,9 +28,23 @@ public class LoginActivity extends AppCompatActivity {
     ProgressBar progressBar;
     Button login;
 
+    SharedPreferences sharedPreferences;
+
+    public static final String fileName="data";
+    public static final String userId="userId";
+    public static final String name="name";
+    public static final String parent="parent";
+    public static final String phone="phone";
+    public static final String photoUrl="photoUrl";
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
+
         IP i=new IP();
         requestWindowFeature(Window.FEATURE_NO_TITLE);
        // getSupportActionBar().hide();
@@ -43,6 +59,9 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress);
         pass.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
         pass.setTransformationMethod(PasswordTransformationMethod.getInstance());
+
+
+        sharedPreferences = getSharedPreferences(fileName, Context.MODE_PRIVATE);
 
         login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,18 +97,23 @@ public class LoginActivity extends AppCompatActivity {
                                     if(result.equals("success"))
                                     {
 
-                                        cookie c=new cookie();
+
                                         String url="http://"+i.getIp()+"/readTest.php?username="+username;
                                         FetchData fetchData = new FetchData(url);
                                         if (fetchData.startFetch()) {
                                             if (fetchData.onComplete()) {
                                                 String result1 = fetchData.getResult();
+                                                //System.out.println(result1);
+                                                String[] str = result1.split(";");
+                                                SharedPreferences.Editor editor=sharedPreferences.edit();
+                                                editor.putString(userId,str[0]);
+                                                editor.putString(name, str[1]);
+                                                editor.putString(parent,str[2]);
+                                                editor.putString(phone,str[3]);
+                                                editor.putString(photoUrl,str[4]);
+                                                editor.commit();
 
-                                                String[] str = result1.split(";", 4);
-                                                c.setId(str[0]);
-                                                c.setName(str[1]);
-                                                c.setParentName(str[2]);
-                                                c.setPhone(str[3]);
+
 
 
                                                 //End ProgressBar (Set visibility to GONE)
@@ -99,13 +123,6 @@ public class LoginActivity extends AppCompatActivity {
                                         progressBar.setVisibility(View.GONE);
                                         Toast.makeText(getApplicationContext(),result,Toast.LENGTH_SHORT).show();
                                         Intent intent=new Intent(getApplicationContext(),Homepage.class);
-                                        Bundle bundle = new Bundle();
-                                        bundle.putString("id",c.getId());
-                                        bundle.putString("name", c.getName());
-                                        bundle.putString("parent", c.getParentName());
-                                        bundle.putString("phone", c.getPhone());
-
-                                        intent.putExtras(bundle);
                                         startActivity(intent);
                                         finish();
 

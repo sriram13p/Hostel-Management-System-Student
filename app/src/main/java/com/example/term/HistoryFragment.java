@@ -1,7 +1,10 @@
 package com.example.term;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.core.app.ActivityCompat;
@@ -39,107 +42,42 @@ public class HistoryFragment extends Fragment {
     ProgressBar proinhis;
     IP i=new IP();
 
+    SharedPreferences sharedPreferences;
+
+    public static final String fileName="data";
+    public static final String userId="userId";
+    public static final String name="name";
+    public static final String parent="parent";
+    public static final String phone="phone";
+    public static final String photoUrl="photoUrl";
+
     public HistoryFragment() {
         // Required empty public constructor
     }
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         userList=new ArrayList<>();
-        Bundle bundle = getArguments();
+        sharedPreferences=this.getActivity().getSharedPreferences(fileName, Context.MODE_PRIVATE);
+
         HpullToRefresh=view.findViewById(R.id.HpullToRefresh);
         proinhis = view.findViewById(R.id.proinhis);
-        proinhis.setVisibility(VISIBLE);
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                String[] field = new String[1];
-                field[0] = "id";
-                //Creating array for data
-                String[] data = new String[1];
-                data[0] = bundle.getString("id", "Default");
-                PutData putData = new PutData("http://" + i.getIp() + "/token.php", "POST", field, data);
-                if (putData.startPut()) {
-                    if (putData.onComplete()) {
-                        String result = putData.getResult();
-                        //End ProgressBar (Set visibility to GONE)
 
-                        String url = "http://" + i.getIp() + "/history.php?id=" + bundle.getString("id", "Default");
-                        FetchData fetchData = new FetchData(url);
-                        if (fetchData.startFetch()) {
-                            if (fetchData.onComplete()) {
-                                String result1 = fetchData.getResult();
-                                String[] str = result1.split("/");
-                                for (int i = 0; i < str.length; i++) {
-                                    String[] sp = str[i].split(";");
-                                    userList.add(new ModelClass(sp[0], sp[1], sp[2], sp[3]));
-
-                                }
-
-                            }
-                            proinhis.setVisibility(View.GONE);
-
-                        }
-                    }
-
-                }
-                //End Write and Read data with URL
-            }
-        });
-
+        new fetchData().execute();
 
 
         HpullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 userList.clear();
-                proinhis.setVisibility(VISIBLE);
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        String[] field = new String[1];
-                        field[0] = "id";
-                        //Creating array for data
-                        String[] data = new String[1];
-                        data[0] = bundle.getString("id", "Default");
-                        PutData putData = new PutData("http://" + i.getIp() + "/token.php", "POST", field, data);
-                        if (putData.startPut()) {
-                            if (putData.onComplete()) {
-                                String result = putData.getResult();
-                                //End ProgressBar (Set visibility to GONE)
 
-                                String url = "http://" + i.getIp() + "/history.php?id=" + bundle.getString("id", "Default");
-                                FetchData fetchData = new FetchData(url);
-                                if (fetchData.startFetch()) {
-                                    if (fetchData.onComplete()) {
-                                        String result1 = fetchData.getResult();
-                                        String[] str = result1.split("/");
-                                        for (int i = 0; i < str.length; i++) {
-                                            String[] sp = str[i].split(";");
-                                            userList.add(new ModelClass(sp[0], sp[1], sp[2], sp[3]));
+                new fetchData().execute();
 
-                                        }
-
-                                    }
-                                    proinhis.setVisibility(View.GONE);
-
-                                }
-                            }
-
-                        }
-                        //End Write and Read data with URL
-                    }
-                });
-                recyclerView=view.findViewById(R.id.recyclerview);
-                layoutManager=new LinearLayoutManager(getContext());
-                layoutManager.setOrientation(RecyclerView.VERTICAL);
-                recyclerView.setLayoutManager(layoutManager);
-                adapter=new Adapter(userList);
-                recyclerView.setAdapter(adapter);
-                adapter.notifyDataSetChanged();
                 HpullToRefresh.setRefreshing(false);
             }
         });
@@ -155,6 +93,55 @@ public class HistoryFragment extends Fragment {
 
 
         return view;
+    }
+    class fetchData extends AsyncTask<Void,Void,Void>{
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            proinhis.setVisibility(VISIBLE);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            String[] field = new String[1];
+            field[0] = "id";
+            //Creating array for data
+            String[] data = new String[1];
+            data[0] = sharedPreferences.getString(userId,"");
+            PutData putData = new PutData("http://" + i.getIp() + "/token.php", "POST", field, data);
+            if (putData.startPut()) {
+                if (putData.onComplete()) {
+                    String result = putData.getResult();
+                    //End ProgressBar (Set visibility to GONE)
+
+                    String url = "http://" + i.getIp() + "/history.php?id=" + sharedPreferences.getString(userId,"");
+                    FetchData fetchData = new FetchData(url);
+                    if (fetchData.startFetch()) {
+                        if (fetchData.onComplete()) {
+                            String result1 = fetchData.getResult();
+                            String[] str = result1.split("/");
+                            for (int i = 0; i < str.length; i++) {
+                                String[] sp = str[i].split(";");
+                                userList.add(new ModelClass(sp[0], sp[1], sp[2], sp[3]));
+
+                            }
+
+                        }
+
+
+                    }
+                }
+
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            super.onPostExecute(unused);
+            proinhis.setVisibility(View.GONE);
+        }
     }
 
 

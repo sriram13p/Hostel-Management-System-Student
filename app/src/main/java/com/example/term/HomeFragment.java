@@ -3,7 +3,9 @@ package com.example.term;
 import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
@@ -47,6 +49,15 @@ public class HomeFragment extends Fragment {
     Button permissionbutton,parentmsg,cancelrequestinparent,cancelrequestinwarden,cancelrequest,qr,refresh,cancelrequestpd,cancelrequestwd;
     String expectedout,expectedin,reasonstr;
 
+    SharedPreferences sharedPreferences;
+
+    public static final String fileName="data";
+    public static final String userId="userId";
+    public static final String name="name";
+    public static final String parent="parent";
+    public static final String phone="phone";
+    public static final String photoUrl="photoUrl";
+
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -54,7 +65,7 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Bundle bundleHome = new Bundle();
+
         cookie c=new cookie();
         IP i=new IP();
         View view = inflater.inflate(R.layout.fragment_home, container, false);
@@ -81,12 +92,9 @@ public class HomeFragment extends Fragment {
 
         Bundle bundle3 = new Bundle();
 
-        Bundle bundle=getArguments();
+        sharedPreferences=this.getActivity().getSharedPreferences(fileName, Context.MODE_PRIVATE);
 
-        bundleHome.putString("id",bundle.getString("id", "Default"));
-        bundleHome.putString("name", bundle.getString("name", "Default"));
-        bundleHome.putString("parent", bundle.getString("parent", "Default"));
-        bundleHome.putString("phone", bundle.getString("phone", "Default"));
+
 
 
 
@@ -108,7 +116,7 @@ public class HomeFragment extends Fragment {
         });
 
 
-        nameholder.setText("Hi "+bundle.getString("name", "Default"));
+        nameholder.setText("Hi "+sharedPreferences.getString(name,""));
 
         pro.setVisibility(View.VISIBLE);
         Handler handler = new Handler(Looper.getMainLooper());
@@ -122,7 +130,7 @@ public class HomeFragment extends Fragment {
                 field[0] = "id";
                 //Creating array for data
                 String[] data = new String[1];
-                data[0] = bundle.getString("id", "Default");
+                data[0] = sharedPreferences.getString(userId,"");
                 PutData putData = new PutData("http://"+i.getIp()+"/token.php", "POST", field, data);
                 if (putData.startPut()) {
                     if (putData.onComplete()) {
@@ -131,7 +139,7 @@ public class HomeFragment extends Fragment {
                         if (result.equals("success"))
                         {
 
-                            String url="http://"+i.getIp()+"/readToken.php?id="+ bundle.getString("id", "Default");
+                            String url="http://"+i.getIp()+"/readToken.php?id="+ sharedPreferences.getString(userId,"");
                             FetchData fetchData = new FetchData(url);
                             if (fetchData.startFetch()) {
                                 if (fetchData.onComplete()) {
@@ -202,7 +210,7 @@ public class HomeFragment extends Fragment {
                         field[0] = "id";
                         //Creating array for data
                         String[] data = new String[1];
-                        data[0] = bundle.getString("id", "Default");
+                        data[0] = sharedPreferences.getString(userId,"");
                         PutData putData = new PutData("http://"+i.getIp()+"/token.php", "POST", field, data);
                         if (putData.startPut()) {
                             if (putData.onComplete()) {
@@ -211,7 +219,7 @@ public class HomeFragment extends Fragment {
                                 if (result.equals("success"))
                                 {
 
-                                    String url="http://"+i.getIp()+"/readToken.php?id="+ bundle.getString("id", "Default");
+                                    String url="http://"+i.getIp()+"/readToken.php?id="+ sharedPreferences.getString(userId,"");
                                     FetchData fetchData = new FetchData(url);
                                     if (fetchData.startFetch()) {
                                         if (fetchData.onComplete()) {
@@ -293,8 +301,8 @@ public class HomeFragment extends Fragment {
                             data[0] = expectedout;
                             data[1] = expectedin;
                             data[2] = reasonstr;
-                            data[3] = bundle.getString("id", "Default");
-                            data[4] = bundle.getString("phone", "Default");
+                            data[3] = sharedPreferences.getString(userId,"");
+                            data[4] = sharedPreferences.getString(phone,"");
                             PutData putData = new PutData("http://"+i.getIp()+"/permissionform.php", "POST", field, data);
                             if (putData.startPut()) {
                                 if (putData.onComplete()) {
@@ -303,17 +311,17 @@ public class HomeFragment extends Fragment {
 
                                     if(result.equals("success"))
                                     {
-                                        String url="http://"+i.getIp()+"/readToken.php?id="+ bundle.getString("id", "Default");
+                                        String url="http://"+i.getIp()+"/readToken.php?id="+ sharedPreferences.getString(userId,"");
                                         FetchData fetchData = new FetchData(url);
                                         if (fetchData.startFetch()) {
                                             if (fetchData.onComplete()) {
                                                 String result1 = fetchData.getResult();
                                                 String[] str = result1.split(";", 3);
 
-                                                bundle3.putString("id",bundle.getString("id", "Default"));
-                                                bundle3.putString("name", bundle.getString("name", "Default"));
-                                                bundle3.putString("parent", bundle.getString("parent", "Default"));
-                                                bundle3.putString("phone", bundle.getString("phone", "Default"));
+                                                bundle3.putString("id",sharedPreferences.getString(userId,""));
+                                                bundle3.putString("name", sharedPreferences.getString(name,""));
+                                                bundle3.putString("parent",sharedPreferences.getString(parent,""));
+                                                bundle3.putString("phone", sharedPreferences.getString(phone,""));
                                                 bundle3.putString("tid", str[0]);
                                                 parentmsg.performClick();
 
@@ -356,17 +364,17 @@ public class HomeFragment extends Fragment {
                 handler3.post(new Runnable() {
                     @Override
                     public void run() {
-                        String url="http://"+i.getIp()+"/readToken.php?id="+ bundle.getString("id", "Default");
+                        String url="http://"+i.getIp()+"/readToken.php?id="+ sharedPreferences.getString(userId,"");
                         FetchData fetchData = new FetchData(url);
                         if (fetchData.startFetch()) {
                             if (fetchData.onComplete()) {
                                 String result1 = fetchData.getResult();
                                 String[] str = result1.split(";", 3);
 
-                                bundle3.putString("id",bundle.getString("id", "Default"));
-                                bundle3.putString("name", bundle.getString("name", "Default"));
-                                bundle3.putString("parent", bundle.getString("parent", "Default"));
-                                bundle3.putString("phone", bundle.getString("phone", "Default"));
+                                bundle3.putString("id",sharedPreferences.getString(userId,""));
+                                bundle3.putString("name", sharedPreferences.getString(name,""));
+                                bundle3.putString("parent", sharedPreferences.getString(parent,""));
+                                bundle3.putString("phone",sharedPreferences.getString(phone,""));
                                 bundle3.putString("tid", str[0]);
 
 
@@ -393,7 +401,7 @@ public class HomeFragment extends Fragment {
                 handler4.post(new Runnable() {
                     @Override
                     public void run() {
-                        String url="http://"+i.getIp()+"/readToken.php?id="+ bundle.getString("id", "Default");
+                        String url="http://"+i.getIp()+"/readToken.php?id="+sharedPreferences.getString(userId,"");
                         FetchData fetchData = new FetchData(url);
                         if (fetchData.startFetch())
                         {
@@ -411,7 +419,6 @@ public class HomeFragment extends Fragment {
                                             pro.setVisibility(View.GONE);
                                             Toast.makeText(getActivity(), "Ticket Cancel Successful", Toast.LENGTH_SHORT).show();
                                             Intent intent=new Intent(getActivity(),Homepage.class);
-                                            intent.putExtras(bundleHome);
                                             startActivity(intent);
 
 
@@ -449,7 +456,7 @@ public class HomeFragment extends Fragment {
                 handler4.post(new Runnable() {
                     @Override
                     public void run() {
-                        String url="http://"+i.getIp()+"/readToken.php?id="+ bundle.getString("id", "Default");
+                        String url="http://"+i.getIp()+"/readToken.php?id="+ sharedPreferences.getString(userId,"");
                         FetchData fetchData = new FetchData(url);
                         if (fetchData.startFetch())
                         {
@@ -468,7 +475,6 @@ public class HomeFragment extends Fragment {
                                             Toast.makeText(getActivity(), "Ticket Cancel Successful", Toast.LENGTH_SHORT).show();
 
                                             Intent intent=new Intent(getActivity(),Homepage.class);
-                                            intent.putExtras(bundleHome);
                                             startActivity(intent);
 
                                         } else {
@@ -498,7 +504,7 @@ public class HomeFragment extends Fragment {
                 handler4.post(new Runnable() {
                     @Override
                     public void run() {
-                        String url="http://"+i.getIp()+"/readToken.php?id="+ bundle.getString("id", "Default");
+                        String url="http://"+i.getIp()+"/readToken.php?id="+ sharedPreferences.getString(userId,"");
                         FetchData fetchData = new FetchData(url);
                         if (fetchData.startFetch())
                         {
@@ -517,7 +523,6 @@ public class HomeFragment extends Fragment {
                                             Toast.makeText(getActivity(), "Ticket Cancel Successful", Toast.LENGTH_SHORT).show();
 
                                             Intent intent=new Intent(getActivity(),Homepage.class);
-                                            intent.putExtras(bundleHome);
                                             startActivity(intent);
 
                                         } else {
@@ -547,7 +552,7 @@ public class HomeFragment extends Fragment {
                 handler4.post(new Runnable() {
                     @Override
                     public void run() {
-                        String url="http://"+i.getIp()+"/readToken.php?id="+ bundle.getString("id", "Default");
+                        String url="http://"+i.getIp()+"/readToken.php?id="+sharedPreferences.getString(userId,"");
                         FetchData fetchData = new FetchData(url);
                         if (fetchData.startFetch())
                         {
@@ -565,7 +570,6 @@ public class HomeFragment extends Fragment {
                                             pro.setVisibility(View.GONE);
                                             Toast.makeText(getActivity(), "Ticket Cancel Successful", Toast.LENGTH_SHORT).show();
                                             Intent intent=new Intent(getActivity(),Homepage.class);
-                                            intent.putExtras(bundleHome);
                                             startActivity(intent);
 
 
@@ -601,7 +605,7 @@ public class HomeFragment extends Fragment {
                 handler4.post(new Runnable() {
                     @Override
                     public void run() {
-                        String url="http://"+i.getIp()+"/readToken.php?id="+ bundle.getString("id", "Default");
+                        String url="http://"+i.getIp()+"/readToken.php?id="+ sharedPreferences.getString(userId,"");
                         FetchData fetchData = new FetchData(url);
                         if (fetchData.startFetch())
                         {
@@ -619,7 +623,6 @@ public class HomeFragment extends Fragment {
                                             pro.setVisibility(View.GONE);
                                             Toast.makeText(getActivity(), "Ticket Cancel Successful", Toast.LENGTH_SHORT).show();
                                             Intent intent=new Intent(getActivity(),Homepage.class);
-                                            intent.putExtras(bundleHome);
                                             startActivity(intent);
 
 
@@ -650,7 +653,7 @@ public class HomeFragment extends Fragment {
         qr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String url="HMS,"+c.getTid()+","+bundle.getString("phone", "Default");
+                String url="HMS,"+c.getTid()+","+sharedPreferences.getString(phone,"")+","+sharedPreferences.getString(userId,"")+","+sharedPreferences.getString(name,"")+","+sharedPreferences.getString(photoUrl,"");
                 Bundle qrbundle=new Bundle();
                 qrbundle.putString("url",url);
                 Intent qrintent=new Intent(getActivity(),QR.class);
@@ -663,7 +666,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent=new Intent(getActivity(),Homepage.class);
-                intent.putExtras(bundleHome);
+
                 startActivity(intent);
 
             }
