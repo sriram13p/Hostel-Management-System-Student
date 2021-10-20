@@ -50,6 +50,7 @@ public class HomeFragment extends Fragment {
     Button permissionbutton,parentmsg,cancelrequestinparent,cancelrequestinwarden,cancelrequest,qr,refresh,cancelrequestpd,cancelrequestwd;
     String expectedout,expectedin,reasonstr;
     String[] str;
+    int flagMain=0;
 
     SharedPreferences sharedPreferences;
 
@@ -591,6 +592,7 @@ public class HomeFragment extends Fragment {
         protected void onPreExecute() {
             super.onPreExecute();
             flag=0;
+            flagMain=0;
             pro.setVisibility(VISIBLE);
         }
 
@@ -623,8 +625,8 @@ public class HomeFragment extends Fragment {
 
                     }
                     else{
+                        flagMain=1;
 
-                        permissionform.setVisibility(View.VISIBLE);
 
 
                     }
@@ -637,6 +639,10 @@ public class HomeFragment extends Fragment {
         @Override
         protected void onPostExecute(Void unused) {
             super.onPostExecute(unused);
+            if(flagMain==1)
+            {
+                permissionform.setVisibility(View.VISIBLE);
+            }
             if(flag==1) {
                 c.setTid(str[0]);
                 if (str[1].equals("0")) {
