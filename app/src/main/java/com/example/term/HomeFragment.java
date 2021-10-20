@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.core.app.ActivityCompat;
@@ -48,6 +49,7 @@ public class HomeFragment extends Fragment {
     EditText expectedintime,expectedouttime,reason;
     Button permissionbutton,parentmsg,cancelrequestinparent,cancelrequestinwarden,cancelrequest,qr,refresh,cancelrequestpd,cancelrequestwd;
     String expectedout,expectedin,reasonstr;
+    String[] str;
 
     SharedPreferences sharedPreferences;
 
@@ -57,6 +59,9 @@ public class HomeFragment extends Fragment {
     public static final String parent="parent";
     public static final String phone="phone";
     public static final String photoUrl="photoUrl";
+    cookie c=new cookie();
+    IP i=new IP();
+    int flag=0;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -66,8 +71,7 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        cookie c=new cookie();
-        IP i=new IP();
+
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         pullToRefresh=view.findViewById(R.id.pullToRefresh);
         cancelrequestwd=view.findViewById(R.id.cancelrequestwd);
@@ -118,73 +122,13 @@ public class HomeFragment extends Fragment {
 
         nameholder.setText("Hi "+sharedPreferences.getString(name,""));
 
-        pro.setVisibility(View.VISIBLE);
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(new Runnable()
-        {
-            @Override
-            public void run() {
-                //Starting Write and Read data with URL
-                //Creating array for parameters
-                String[] field = new String[1];
-                field[0] = "id";
-                //Creating array for data
-                String[] data = new String[1];
-                data[0] = sharedPreferences.getString(userId,"");
-                PutData putData = new PutData("http://"+i.getIp()+"/token.php", "POST", field, data);
-                if (putData.startPut()) {
-                    if (putData.onComplete()) {
-                        String result = putData.getResult();
-                        //End ProgressBar (Set visibility to GONE)
-                        if (result.equals("success"))
-                        {
-
-                            String url="http://"+i.getIp()+"/readToken.php?id="+ sharedPreferences.getString(userId,"");
-                            FetchData fetchData = new FetchData(url);
-                            if (fetchData.startFetch()) {
-                                if (fetchData.onComplete()) {
-                                    String result1 = fetchData.getResult();
-                                    String[] str = result1.split(";", 3);
-                                    c.setTid(str[0]);
-                                    if(str[1].equals("0"))
-                                    {
-                                        parentlinear.setVisibility(VISIBLE);
-                                    }
-                                    if(str[1].equals("2"))
-                                    {
-                                        parentDeny.setVisibility(VISIBLE);
-                                    }
-                                    if(str[2].equals("2"))
-                                    {
-                                        WardenDeny.setVisibility(VISIBLE);
-                                    }
-
-                                    if(str[1].equals("1") && str[2].equals("0"))
-                                    {
-                                        wardenlinear.setVisibility(VISIBLE);
-                                    }
-                                    if(str[1].equals("1") && str[2].equals("1"))
-                                    {
-                                        allset.setVisibility(VISIBLE);
-                                    }
-
-                                }
-                            }
-                            pro.setVisibility(View.GONE);
-
-                        }
-                        else{
-                            pro.setVisibility(View.GONE);
-                            permissionform.setVisibility(View.VISIBLE);
 
 
-                        }
 
-                    }
-                }
-                //End Write and Read data with URL
-            }
-        });
+        new fetchData().execute();
+
+
+
 
         pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -198,73 +142,9 @@ public class HomeFragment extends Fragment {
                 parentDeny.setVisibility(View.GONE);
                 WardenDeny.setVisibility(View.GONE);
                 //---------------------------
-                pro.setVisibility(View.VISIBLE);
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(new Runnable()
-                {
-                    @Override
-                    public void run() {
-                        //Starting Write and Read data with URL
-                        //Creating array for parameters
-                        String[] field = new String[1];
-                        field[0] = "id";
-                        //Creating array for data
-                        String[] data = new String[1];
-                        data[0] = sharedPreferences.getString(userId,"");
-                        PutData putData = new PutData("http://"+i.getIp()+"/token.php", "POST", field, data);
-                        if (putData.startPut()) {
-                            if (putData.onComplete()) {
-                                String result = putData.getResult();
-                                //End ProgressBar (Set visibility to GONE)
-                                if (result.equals("success"))
-                                {
-
-                                    String url="http://"+i.getIp()+"/readToken.php?id="+ sharedPreferences.getString(userId,"");
-                                    FetchData fetchData = new FetchData(url);
-                                    if (fetchData.startFetch()) {
-                                        if (fetchData.onComplete()) {
-                                            String result1 = fetchData.getResult();
-                                            String[] str = result1.split(";", 3);
-                                            c.setTid(str[0]);
-                                            if(str[1].equals("0"))
-                                            {
-                                                parentlinear.setVisibility(VISIBLE);
-                                            }
-                                            if(str[1].equals("2"))
-                                            {
-                                                parentDeny.setVisibility(VISIBLE);
-                                            }
-                                            if(str[2].equals("2"))
-                                            {
-                                                WardenDeny.setVisibility(VISIBLE);
-                                            }
-
-                                            if(str[1].equals("1") && str[2].equals("0"))
-                                            {
-                                                wardenlinear.setVisibility(VISIBLE);
-                                            }
-                                            if(str[1].equals("1") && str[2].equals("1"))
-                                            {
-                                                allset.setVisibility(VISIBLE);
-                                            }
-
-                                        }
-                                    }
-                                    pro.setVisibility(View.GONE);
-
-                                }
-                                else{
-                                    pro.setVisibility(View.GONE);
-                                    permissionform.setVisibility(View.VISIBLE);
+                new fetchData().execute();
 
 
-                                }
-
-                            }
-                        }
-                        //End Write and Read data with URL
-                    }
-                });
                 pullToRefresh.setRefreshing(false);
 
             }
@@ -704,6 +584,80 @@ public class HomeFragment extends Fragment {
             }
         };
         new DatePickerDialog(getActivity(),dateSetListener,calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH)).show();
+    }
+
+    class fetchData extends AsyncTask<Void,Void,Void>{
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            flag=0;
+            pro.setVisibility(VISIBLE);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            String[] field = new String[1];
+            field[0] = "id";
+            //Creating array for data
+            String[] data = new String[1];
+            data[0] = sharedPreferences.getString(userId,"");
+            PutData putData = new PutData("http://"+i.getIp()+"/token.php", "POST", field, data);
+            if (putData.startPut()) {
+                if (putData.onComplete()) {
+                    String result = putData.getResult();
+                    //End ProgressBar (Set visibility to GONE)
+                    if (result.equals("success"))
+                    {
+
+                        String url="http://"+i.getIp()+"/readToken.php?id="+ sharedPreferences.getString(userId,"");
+                        FetchData fetchData = new FetchData(url);
+                        if (fetchData.startFetch()) {
+                            if (fetchData.onComplete()) {
+                                String result1 = fetchData.getResult();
+                                str = result1.split(";", 3);
+                                flag=1;
+
+                            }
+                        }
+
+
+                    }
+                    else{
+
+                        permissionform.setVisibility(View.VISIBLE);
+
+
+                    }
+
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            super.onPostExecute(unused);
+            if(flag==1) {
+                c.setTid(str[0]);
+                if (str[1].equals("0")) {
+                    parentlinear.setVisibility(VISIBLE);
+                }
+                if (str[1].equals("2")) {
+                    parentDeny.setVisibility(VISIBLE);
+                }
+                if (str[2].equals("2")) {
+                    WardenDeny.setVisibility(VISIBLE);
+                }
+
+                if (str[1].equals("1") && str[2].equals("0")) {
+                    wardenlinear.setVisibility(VISIBLE);
+                }
+                if (str[1].equals("1") && str[2].equals("1")) {
+                    allset.setVisibility(VISIBLE);
+                }
+            }
+            pro.setVisibility(View.GONE);
+        }
     }
 
 
