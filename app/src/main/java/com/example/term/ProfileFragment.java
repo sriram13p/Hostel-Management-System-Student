@@ -12,12 +12,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ProfileFragment extends Fragment {
     TextView name1,id1,parentname1,phone1;
     Button logout;
+    ImageView imageView;
 
     SharedPreferences sharedPreferences;
 
@@ -47,6 +53,7 @@ public class ProfileFragment extends Fragment {
         parentname1 = view.findViewById(R.id.parentname);
         phone1 = view.findViewById(R.id.phone);
         logout= view.findViewById(R.id.logout);
+        imageView=view.findViewById(R.id.imageView);
 
         sharedPreferences=this.getActivity().getSharedPreferences(fileName, Context.MODE_PRIVATE);
 
@@ -57,6 +64,13 @@ public class ProfileFragment extends Fragment {
         id1.setText(sharedPreferences.getString(userId,""));
         parentname1.setText(sharedPreferences.getString(parent,""));
         phone1.setText(sharedPreferences.getString(phone,""));
+        try{
+
+            Glide.with(this).load(sharedPreferences.getString(photoUrl,"")).into(imageView);
+        }catch (NullPointerException e){
+            Toast.makeText(getActivity(),"image not found",Toast.LENGTH_LONG).show();
+        }
+
 
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
