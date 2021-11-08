@@ -26,5 +26,5 @@
         android:drawableTint="#FFFFFF"
         android:fontFamily="@font/poppinsmedium"
         android:textColor="#FFFFFF"
-        android:text="              Hostel \n Permission System" />
+        android:text="         Hostel Outing\nManagement System" />
 </androidx.constraintlayout.widget.ConstraintLayout>
